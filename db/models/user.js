@@ -7,7 +7,7 @@ const privacySchema = schema({
 	exceptions: [mongoose.Types.ObjectId],
 	type: {
 		type: String,
-		enum: ["no-one", "contacts", "everyone", "contactsexcept"],
+		enum: ["no-one", "contacts", "everyone", "contacts-except"],
 	},
 });
 
@@ -17,7 +17,11 @@ const usersSchema = schema({
 	country: String,
 	userName: String,
 	dp: String,
-	wallpaper: String,
+	lastSeen: Date,
+	wallpaper: {
+		type: String,
+		default: "default",
+	},
 	dateJoined: {
 		type: Date,
 		default: Date.now(),
@@ -45,14 +49,14 @@ const usersSchema = schema({
 	chats: [
 		schema({
 			id: String,
-			blocked: schema({
-				by: mongoose.Types.ObjectId,
-				blocked: Boolean,
-			}),
+			type: {
+				type: String,
+				enum: ["group", "private"],
+				default: "private",
+			},
+			blocked: [mongoose.Types.ObjectId],
 			muted: Boolean,
-			disapearingMessages: schema({
-				duration: Number,
-			}),
+			disapearingMessages: Number,
 			unread: Number,
 			lastMessage: messageSchema,
 			partnerInfo: schema({

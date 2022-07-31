@@ -5,6 +5,7 @@ process.on("uncaughtException", console.log);
 
 const live = require("./io/live");
 const auth = require("./io/auth");
+const rtc = require("./io/rtc");
 
 const io = require("socket.io")(process.env.PORT || 4000, {
 	cors: { origin: "*" },

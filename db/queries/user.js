@@ -1,5 +1,4 @@
 const { User } = require("../models/user");
-const mongoose = require("mongoose");
 const { unsignToken, signToken } = require("../../utils");
 
 const $or = ({ telephone, email }) => ({ $or: [{ telephone }, { email }] });
@@ -47,9 +46,20 @@ const verify = async (token) => {
 	}
 };
 
+const leave = async (_id) =>
+	User.findByIdAndUpdate(
+		_id,
+		{ lastSeen: new Date().toISOString() },
+		{ new: true },
+	);
+
+const getLatsSeen = (_id) => User.findById(_id).select("-_id lastSeen");
+
 module.exports = {
 	get,
 	add,
 	verify,
+	leave,
+	getLatsSeen,
 	getPublicAccounts,
 };

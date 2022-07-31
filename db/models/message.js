@@ -8,21 +8,48 @@ const messageSchemaObject = {
 	sender: schema({
 		userName: String,
 		telephone: String,
-		givenName: String,
+		bio: String,
 		dp: String,
 		_id: mongoose.Types.ObjectId,
 	}),
+	reactions: [
+		schema({
+			character: String,
+			slug: String,
+			reactors: [
+				schema({
+					userName: String,
+					telephone: String,
+					bio: String,
+					dp: String,
+					_id: mongoose.Types.ObjectId,
+					date: {
+						type: Date,
+						default: Date.now(),
+					},
+				}),
+			],
+		}),
+	],
+	starredBy: [mongoose.Types.ObjectId],
 	receipt: schema({
 		sent: Date,
 		received: Date,
 		seen: Date,
 	}),
+	deleted: [
+		schema({
+			by: mongoose.Types.ObjectId,
+			types: [Number],
+		}),
+	],
 	file: schema({
 		type: {
 			type: String,
 			enum: ["picture", "video", "gif", "voice", "pdf", "other"],
-			url: String,
 		},
+		url: String,
+		duration: Number,
 	}),
 };
 
