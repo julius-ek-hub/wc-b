@@ -3,13 +3,12 @@ const user = require("../db/queries/user");
 const chat = require("../db/queries/chat");
 const message = require("../db/queries/message");
 const rtc = require("./rtc");
-
-const ss = require("socket.io-stream");
+const s3 = require("../s3");
 
 const { unsignToken, ignoreError } = require("../utils");
 
 module.exports = (io) => {
-	const live = io.of("/live");
+	live = io.of("/live");
 
 	live.use(db);
 
@@ -31,6 +30,12 @@ module.exports = (io) => {
 			}),
 		);
 
+		socket.on("chats", (data, success) =>
+			ignoreError(async () => {
+				const chats = await chat.getChats(me._id);
+				success(chats);
+			}),
+		);
 		socket.on("new-message", (data, success) =>
 			ignoreError(async () => {
 				const newMessage = await message.newMessage({
@@ -41,7 +46,7 @@ module.exports = (io) => {
 				success(newMessage);
 
 				live.emit("receive-message-" + data.partnerId, {
-					message: newMessage,
+					...newMessage,
 					chatId: data.chatId,
 				});
 			}),
@@ -98,6 +103,12 @@ module.exports = (io) => {
 			}),
 		);
 
+		socket.on("s3-url", (data, success) =>
+			ignoreError(async () => {
+				success(await s3.generateS3URL(data));
+			}),
+		);
+
 		socket.on("call", (data, success) =>
 			ignoreError(async () => {
 				success();
@@ -112,8 +123,8 @@ module.exports = (io) => {
 			}),
 		);
 
-		socket.on("i-am-online", () =>
-			ignoreError(() => live.emit(`connected-${me._id}`)),
+		socket.on("ringing", (data) =>
+			ignoreError(() => live.emit(`ringing-${data.from._id}`)),
 		);
 
 		socket.on("callee-busy", (to) =>
@@ -122,31 +133,10 @@ module.exports = (io) => {
 			}),
 		);
 
-		socket.on("new-chat", (data, success) =>
-			ignoreError(async () => {
-				const result = await chat.newChat(me, data);
-				success(result);
-				live.emit(`new-chat-${data.partnerId}`, result);
-			}),
-		);
-
-		socket.on("join-room", (roomId, success) =>
-			ignoreError(async () => {
-				socket.join(roomId);
-				success();
-			}),
-		);
-		socket.on("leave-room", (roomId, success) =>
-			ignoreError(async () => {
-				socket.leave(roomId);
-				success();
-			}),
-		);
-
 		socket.on("disconnect", () => {
 			ignoreError(async () => {
-				const result = await user.leave(me._id);
-				live.emit(`disconnected-${me._id}`, result.lastSeen);
+				await user.leave(me._id);
+				live.emit(`disconnected-${me._id}`, new Date().toISOString());
 			});
 		});
 	});

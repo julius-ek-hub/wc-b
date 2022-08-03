@@ -57,15 +57,7 @@ const usersSchema = schema({
 			blocked: [mongoose.Types.ObjectId],
 			muted: Boolean,
 			disapearingMessages: Number,
-			unread: Number,
-			lastMessage: messageSchema,
-			partnerInfo: schema({
-				_id: mongoose.Types.ObjectId,
-				userName: String,
-				givenName: String,
-				telephone: String,
-				dp: String,
-			}),
+			partnerId: mongoose.Types.ObjectId,
 		}),
 	],
 	privacy: {

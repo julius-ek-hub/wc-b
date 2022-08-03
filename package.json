@@ -13,10 +13,10 @@
 	"license": "ISC",
 	"dependencies": {
 		"agora-access-token": "^2.0.4",
+		"aws-sdk": "^2.1185.0",
 		"dotenv": "^16.0.1",
 		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^6.4.4",
-		"socket.io": "^4.5.1",
-		"socket.io-stream": "^0.9.1"
+		"socket.io": "^4.5.1"
 	}
 }

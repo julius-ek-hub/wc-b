@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
 
 const schema = (obj) => new mongoose.Schema(obj);
+const _id = mongoose.Types.ObjectId;
 
 const messageSchemaObject = {
 	message: String,
 	chatId: String,
-	sender: schema({
-		userName: String,
-		telephone: String,
-		bio: String,
-		dp: String,
-		_id: mongoose.Types.ObjectId,
+	senderId: _id,
+	securityMessage: String,
+	notification: schema({
+		type: String,
+		from: _id,
+		to: _id,
 	}),
 	reactions: [
 		schema({
@@ -18,11 +19,7 @@ const messageSchemaObject = {
 			slug: String,
 			reactors: [
 				schema({
-					userName: String,
-					telephone: String,
-					bio: String,
-					dp: String,
-					_id: mongoose.Types.ObjectId,
+					_id,
 					date: {
 						type: Date,
 						default: Date.now(),
@@ -31,22 +28,17 @@ const messageSchemaObject = {
 			],
 		}),
 	],
-	starredBy: [mongoose.Types.ObjectId],
+	starredBy: [_id],
 	receipt: schema({
 		sent: Date,
-		received: Date,
-		seen: Date,
+		received: [schema({ _id, date: Date })],
+		seen: [schema({ _id, date: Date })],
 	}),
-	deleted: [
-		schema({
-			by: mongoose.Types.ObjectId,
-			types: [Number],
-		}),
-	],
+	deleted: [schema({ _id, types: [Number] })],
 	file: schema({
 		type: {
 			type: String,
-			enum: ["picture", "video", "gif", "voice", "pdf", "other"],
+			enum: ["image", "video", "gif", "voice", "pdf", "other"],
 		},
 		url: String,
 		duration: Number,
